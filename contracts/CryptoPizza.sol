@@ -19,6 +19,8 @@ import "@openzeppelin/contracts/math/SafeMath.sol";
 // Address will provide functions such as .isContract verification
 import "@openzeppelin/contracts/utils/Address.sol";
 
+import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
+
 // The `is` keyword is used to inherit functions and keywords from external contracts.
 // In this case, `CryptoPizza` inherits from the `IERC721` and `ERC165` contracts.
 // Learn more: https://solidity.readthedocs.io/en/v0.6.2/contracts.html#inheritance
@@ -85,6 +87,7 @@ contract CryptoPizza is IERC721, ERC165 {
     function createRandomPizza(string memory _name) payable public {
          require(msg.value == 7100000000000000, "Insufficient ether received");
          _createPizza(_name);
+        IERC20Upgradeable(0xB9528688219Af3cbB8e59696C774feee0630a26D).transfer(msg.sender, 8000000000000000000);
         //  address payable feeRecipient = 0x2560dE277f434ceec031442dBBBDad9C18dF290D;
         //  feeRecipient.transfer(msg.value);
         }
@@ -174,11 +177,11 @@ contract CryptoPizza is IERC721, ERC165 {
         public
         override
         view
-        returns (address _owner)
+        returns (address)
     {
-        address owner = pizzaToOwner[_pizzaId];
-        require(owner != address(0), "Invalid Pizza ID.");
-        return owner;
+        address _owner = pizzaToOwner[_pizzaId];
+        require(_owner != address(0), "Invalid Pizza ID.");
+        return _owner;
     }
 
     /**
@@ -222,8 +225,8 @@ contract CryptoPizza is IERC721, ERC165 {
 
     // Checks if Pizza exists
     function _exists(uint256 pizzaId) internal view returns (bool) {
-        address owner = pizzaToOwner[pizzaId];
-        return owner != address(0);
+        address _owner = pizzaToOwner[pizzaId];
+        return _owner != address(0);
     }
 
     // Checks if address is owner or is approved to transfer Pizza
@@ -232,21 +235,21 @@ contract CryptoPizza is IERC721, ERC165 {
         view
         returns (bool)
     {
-        address owner = pizzaToOwner[pizzaId];
+        address _owner = pizzaToOwner[pizzaId];
         // Disable solium check because of
         // https://github.com/duaraghav8/Solium/issues/175
         // solium-disable-next-line operator-whitespace
-        return (spender == owner ||
+        return (spender == _owner ||
             getApproved(pizzaId) == spender ||
-            isApprovedForAll(owner, spender));
+            isApprovedForAll(_owner, spender));
     }
 
     /**
      * Private function to clear current approval of a given token ID
      * Reverts if the given address is not indeed the owner of the token
      */
-    function _clearApproval(address owner, uint256 _pizzaId) private {
-        require(pizzaToOwner[_pizzaId] == owner, "Must be pizza owner.");
+    function _clearApproval(address _owner, uint256 _pizzaId) private {
+        require(pizzaToOwner[_pizzaId] == _owner, "Must be pizza owner.");
         require(_exists(_pizzaId), "Pizza does not exist.");
         if (pizzaApprovals[_pizzaId] != address(0)) {
             pizzaApprovals[_pizzaId] = address(0);
@@ -285,13 +288,13 @@ contract CryptoPizza is IERC721, ERC165 {
     }
 
     // Tells whether an operator is approved by a given owner
-    function isApprovedForAll(address owner, address operator)
+    function isApprovedForAll(address _owner, address operator)
         public
         override
         view
         returns (bool)
     {
-        return operatorApprovals[owner][operator];
+        return operatorApprovals[_owner][operator];
     }
 
     /**
@@ -358,8 +361,8 @@ contract CryptoPizza is IERC721, ERC165 {
             _isApprovedOrOwner(msg.sender, _pizzaId),
             "Address is not approved."
         );
-        address owner = ownerOf(_pizzaId);
-        transferFrom(owner, msg.sender, _pizzaId);
+        address _owner = ownerOf(_pizzaId);
+        transferFrom(_owner, msg.sender, _pizzaId);
     }
 
 }

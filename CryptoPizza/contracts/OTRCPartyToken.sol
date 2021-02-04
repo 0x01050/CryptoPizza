@@ -3,9 +3,10 @@
 pragma solidity 0.6.12;
 
 import "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/math/SafeMathUpgradeable.sol";
 
 contract OTRCPartyToken is ERC20Upgradeable {
-    using SafeMath for uint256;
+    using SafeMathUpgradeable for uint256;
     uint256 totalDividendPoints = 0;
     uint256 unclaimedDividends = 0;
     uint256 pointMultiplier = 1000000000;
@@ -15,6 +16,7 @@ contract OTRCPartyToken is ERC20Upgradeable {
         uint256 balance;
         uint256 lastDividendPoints;
     }
+    mapping(address => account) public users;
     modifier onlyOwner() {
         require(owner == owner);
         _;
@@ -23,18 +25,22 @@ contract OTRCPartyToken is ERC20Upgradeable {
         uint256 owing = dividendsOwing(investor);
         if (owing > 0) {
             unclaimedDividends = unclaimedDividends.sub(owing);
-            balanceOf(investor).balance = balanceOf(investor).balance.add(
+            users[investor].balance = users[investor].balance.add(
                 owing
             );
-            balanceOf(investor).lastDividendPoints = totalDividendPoints;
+            users[investor].lastDividendPoints = totalDividendPoints;
         }
         _;
     }
 
- constructor() __ERC20_init("OTRCPartyToken","OTRCPT") public {
-    _mint(msg.sender, 8.5000001e19);
-     emit Transfer(address(0), owner, 8.5000001e19);
+ constructor() public {
+      initialize();
 }
+    function initialize() initializer public {
+        __ERC20_init("OTRCPartyToken","OTRCPT");
+        _mint(msg.sender, 8.5000001e19);
+        emit Transfer(address(0), owner, 8.5000001e19);
+    }
     /**
      new dividend = totalDividendPoints - investor's lastDividnedPoint
      ( balance * new dividend ) / points multiplier
@@ -45,10 +51,10 @@ contract OTRCPartyToken is ERC20Upgradeable {
         returns (uint256)
     {
         uint256 newDividendPoints = totalDividendPoints.sub(
-            balanceOf(investor).lastDividendPoints
+            users[investor].lastDividendPoints
         );
         return
-            (balanceOf(investor).balance.mul(newDividendPoints)).div(
+            (users[investor].balance.mul(newDividendPoints)).div(
                 pointMultiplier
             );
     }

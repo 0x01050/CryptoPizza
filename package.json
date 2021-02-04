@@ -3,7 +3,6 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "0x-instant-component": "^1.0.1",
     "@daisypayments/react-metamask": "^0.4.1",
     "@openzeppelin/contracts": "^3.1.0",
     "@openzeppelin/contracts-upgradeable": "^3.3.0",
@@ -11,6 +10,7 @@
     "@testing-library/react": "^9.5.0",
     "@testing-library/user-event": "^7.2.1",
     "@truffle/hdwallet-provider": "^1.2.1",
+    "0x-instant-component": "^1.0.1",
     "bootstrap": "^4.5.2",
     "express": "^4.17.1",
     "fs": "0.0.1-security",

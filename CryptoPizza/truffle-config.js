@@ -10,6 +10,14 @@ module.exports = {
   // to customize your Truffle configuration!
   contracts_build_directory: path.join(__dirname, '../src/contracts'),
   networks: {
+    rinkeby: {
+      provider: () => new HDWalletProvider(
+        mnemonic, `https://rinkeby.infura.io/v3/${infuraKey}`
+      ),
+      network_id: 4,
+      gasPrice: 10e9,
+      skipDryRun: true
+    },
     ropsten: {
       provider: function () {
         return new HDWalletProvider(
